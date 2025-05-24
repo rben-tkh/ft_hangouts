@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="AppTheme" parent="android:Theme.Holo.Light">
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
+
+    <style name="ToolbarTheme" parent="android:Theme.Holo">
+        <item name="android:textColorPrimary">@android:color/white</item>
+        <item name="android:textColorSecondary">@android:color/white</item>
+        <item name="android:actionButtonStyle">@style/ActionButtonStyle</item>
+        <item name="android:actionOverflowButtonStyle">@style/OverflowButtonStyle</item>
+    </style>
+
+    <style name="ActionButtonStyle" parent="android:Widget.Holo.ActionButton">
+        <item name="android:minHeight">?android:attr/actionBarSize</item>
+        <item name="android:minWidth">?android:attr/actionBarSize</item>
+        <item name="android:padding">12dp</item>
+        <item name="android:layout_gravity">center_vertical</item>
+    </style>
+
+    <style name="OverflowButtonStyle" parent="android:Widget.Holo.ActionButton.Overflow">
+        <item name="android:layout_height">?android:attr/actionBarSize</item>
+        <item name="android:layout_width">?android:attr/actionBarSize</item>
+        <item name="android:paddingTop">8dp</item>
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="AppTheme.AppBarOverlay" parent="android:Theme.Holo.Light" />
+
+    <style name="AppTheme.PopupOverlay" parent="android:Theme.Holo.Light" />
+</resources>

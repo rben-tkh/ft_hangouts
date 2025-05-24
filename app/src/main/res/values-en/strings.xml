@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ft_hangouts</string>
+    <string name="add_contact">Add Contact</string>
+    <string name="edit_contact">Edit Contact</string>
+    <string name="no_contacts">No contacts available</string>
+    <string name="name">Name</string>
+    <string name="phone">Phone</string>
+    <string name="email">Email</string>
+    <string name="address">Address</string>
+    <string name="note">Note</string>
+    <string name="save">Save</string>
+    <string name="field_required">This field is required</string>
+    <string name="contact_saved">Contact saved</string>
+    <string name="error_saving_contact">Error saving contact</string>
+    <string name="contact_updated">Contact updated</string>
+    <string name="error_updating_contact">Error updating contact</string>
+    <string name="contact_deleted">Contact deleted</string>
+    <string name="error_loading_contact">Error loading contact</string>
+    <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
+    <string name="message">Message</string>
+    <string name="send">Send</string>
+    <string name="error_sending_message">Error sending message</string>
+    <string name="change_header_color">Change Header Color</string>
+    <string name="color_default">Default</string>
+    <string name="color_red">Red</string>
+    <string name="color_green">Green</string>
+    <string name="color_blue">Blue</string>
+    <string name="color_purple">Purple</string>
+    <string name="background_time">Application put in the background at</string>
+    
+    <string name="change_language">Change Language</string>
+    <string name="language_settings">Language Settings</string>
+    <string name="language_french">French</string>
+    <string name="language_english">English</string>
+    <string name="current_language">Current language</string>
+    
+    <string name="name_too_long">Name cannot exceed 30 characters</string>
+    <string name="phone_invalid_format">Phone must contain only digits</string>
+    <string name="phone_too_long">Phone cannot exceed 20 digits</string>
+    <string name="email_invalid_format">Invalid email format (example: name@domain.com)</string>
+    
+    <string name="no_email_saved">No email saved</string>
+    <string name="no_address_saved">No address saved</string>
+    <string name="no_note_saved">No note saved</string>
+    
+    <string name="set_as_default_sms_app">Please set ft_hangouts as default SMS app in settings</string>
+    <string name="permissions_granted">All permissions granted</string>
+    <string name="permissions_required">Some permissions are required for proper functioning</string>
+    <string name="sms_permission_required">SMS sending permission required</string>
+    <string name="message_sent">Message sent</string>
+    <string name="send_error">Send error: %1$s</string>
+</resources>
