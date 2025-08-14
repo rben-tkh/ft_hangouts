@@ -7,25 +7,28 @@ public class Contact {
     private String email;
     private String address;
     private String note;
+    private String photoPath;
 
     public Contact() {
     }
 
-    public Contact(int id, String name, String phoneNumber, String email, String address, String note) {
+    public Contact(int id, String name, String phoneNumber, String email, String address, String note, String photoPath) {
         this.id = id;
         this.name = name;
         this.phoneNumber = phoneNumber;
         this.email = email;
         this.address = address;
         this.note = note;
+        this.photoPath = photoPath;
     }
 
-    public Contact(String name, String phoneNumber, String email, String address, String note) {
+    public Contact(String name, String phoneNumber, String email, String address, String note, String photoPath) {
         this.name = name;
         this.phoneNumber = phoneNumber;
         this.email = email;
         this.address = address;
         this.note = note;
+        this.photoPath = photoPath;
     }
 
     public int getId() {
@@ -74,5 +77,13 @@ public class Contact {
 
     public void setNote(String note) {
         this.note = note;
+    }
+
+    public String getPhotoPath() {
+        return photoPath;
+    }
+
+    public void setPhotoPath(String photoPath) {
+        this.photoPath = photoPath;
     }
 }

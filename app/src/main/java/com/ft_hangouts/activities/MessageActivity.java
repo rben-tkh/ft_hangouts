@@ -1,8 +1,10 @@
 package com.ft_hangouts.activities;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -12,6 +14,7 @@ import android.util.Log;
 import java.util.ArrayList;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -89,6 +92,14 @@ public class MessageActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
                 sendMessage();
+            }
+        });
+
+        messageListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                showDeleteMessageDialog(position);
+                return true;
             }
         });
 
@@ -216,5 +227,28 @@ public class MessageActivity extends BaseActivity {
 
     public static boolean isVisibleForContact(int contactId) {
         return isVisible && currentContactId == contactId;
+    }
+
+    private void showDeleteMessageDialog(final int position) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.delete_message_title);
+        builder.setMessage(R.string.delete_message_confirmation);
+        builder.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                deleteMessage(position);
+            }
+        });
+        builder.setNegativeButton(R.string.cancel, null);
+        builder.show();
+    }
+
+    private void deleteMessage(int position) {
+        if (position >= 0 && position < messageList.size()) {
+            Message message = messageList.get(position);
+            dbHelper.deleteMessage(message.getId());
+            loadMessages();
+            Toast.makeText(this, R.string.message_deleted, Toast.LENGTH_SHORT).show();
+        }
     }
 }

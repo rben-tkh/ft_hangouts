@@ -51,4 +51,24 @@
     <string name="sms_permission_required">Permission d\'envoi SMS requise</string>
     <string name="message_sent">Message envoyé</string>
     <string name="send_error">Erreur d\'envoi: %1$s</string>
+    
+    <string name="select_photo">Sélectionner une photo</string>
+    <string name="permission_denied">Permission refusée</string>
+    <string name="invalid_image_format">Veuillez sélectionner une image valide</string>
+    <string name="error_saving_image">Erreur lors de l\'enregistrement de l\'image</string>
+    
+    <string name="contact_auto_created">Nouveau contact créé automatiquement</string>
+    <string name="new_message_from">Nouveau message de</string>
+    
+    <string name="call">Appeler</string>
+    <string name="calling">Appel en cours vers</string>
+    <string name="call_failed">Échec de l\'appel</string>
+    <string name="call_permission_denied">Permission d\'appel refusée</string>
+    <string name="no_phone_number">Aucun numéro de téléphone disponible</string>
+    <string name="returned_from_call">Retour d\'appel</string>
+    
+    <string name="delete_message_title">Supprimer le message</string>
+    <string name="delete_message_confirmation">Êtes-vous sûr de vouloir supprimer ce message ?</string>
+    <string name="message_deleted">Message supprimé</string>
+    <string name="cancel">Annuler</string>
 </resources>

@@ -1,7 +1,10 @@
 package com.ft_hangouts.activities;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
@@ -20,6 +23,7 @@ import com.ft_hangouts.R;
 import com.ft_hangouts.adapters.ContactAdapter;
 import com.ft_hangouts.database.DatabaseHelper;
 import com.ft_hangouts.models.Contact;
+import com.ft_hangouts.receivers.SmsReceiver;
 import android.widget.Button;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -34,6 +38,7 @@ public class MainActivity extends BaseActivity {
     private ContactAdapter contactAdapter;
     private List<Contact> contactList;
     private DatabaseHelper dbHelper;
+    private BroadcastReceiver contactCreatedReceiver;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,6 +80,24 @@ public class MainActivity extends BaseActivity {
                 startActivity(intent);
             }
         });
+        
+        setupContactCreatedReceiver();
+    }
+    
+    private void setupContactCreatedReceiver() {
+        contactCreatedReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String phoneNumber = intent.getStringExtra("PHONE_NUMBER");
+                loadContacts();
+                Toast.makeText(MainActivity.this, 
+                    getString(R.string.contact_auto_created) + ": " + phoneNumber, 
+                    Toast.LENGTH_LONG).show();
+            }
+        };
+        
+        IntentFilter filter = new IntentFilter(SmsReceiver.ACTION_CONTACT_CREATED);
+        registerReceiver(contactCreatedReceiver, filter);
     }
 
     private void loadContacts() {
@@ -90,6 +113,11 @@ public class MainActivity extends BaseActivity {
         loadContacts();
 
         checkBackgroundReturn();
+        
+        if (getIntent().getBooleanExtra("RETURN_FROM_CALL", false)) {
+            Toast.makeText(this, getString(R.string.returned_from_call), Toast.LENGTH_SHORT).show();
+            getIntent().removeExtra("RETURN_FROM_CALL");
+        }
     }
 
     private void checkBackgroundReturn() {
@@ -165,7 +193,9 @@ public class MainActivity extends BaseActivity {
             String[] permissions = {
                 Manifest.permission.SEND_SMS,
                 Manifest.permission.RECEIVE_SMS,
-                Manifest.permission.READ_SMS
+                Manifest.permission.READ_SMS,
+                Manifest.permission.CALL_PHONE,
+                Manifest.permission.READ_EXTERNAL_STORAGE
             };
             
             List<String> permissionsToRequest = new ArrayList<>();
@@ -199,6 +229,14 @@ public class MainActivity extends BaseActivity {
             if (!allPermissionsGranted) {
                 Toast.makeText(this, getString(R.string.permissions_required), Toast.LENGTH_LONG).show();
             }
+        }
+    }
+    
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (contactCreatedReceiver != null) {
+            unregisterReceiver(contactCreatedReceiver);
         }
     }
 }

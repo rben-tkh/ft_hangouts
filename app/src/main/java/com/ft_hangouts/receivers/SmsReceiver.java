@@ -22,6 +22,7 @@ import com.ft_hangouts.models.Contact;
 public class SmsReceiver extends BroadcastReceiver {
     private static final String TAG = "SmsReceiver";
     public static final String ACTION_SMS_RECEIVED = "com.ft_hangouts.SMS_RECEIVED";
+    public static final String ACTION_CONTACT_CREATED = "com.ft_hangouts.CONTACT_CREATED";
     private static final String CHANNEL_ID = "SMS_NOTIFICATIONS";
 
     @Override
@@ -82,13 +83,28 @@ public class SmsReceiver extends BroadcastReceiver {
             
             Contact contact = findContactByPhoneNumber(dbHelper, phoneNumber);
             
-            if (contact != null) {
-                dbHelper.addMessage(contact.getId(), messageText, false);
-                Log.d(TAG, "Message sauvé pour le contact: " + contact.getName());
-                return contact;
-            } else {
-                return null;
+            if (contact == null) {
+                contact = new Contact(phoneNumber, phoneNumber, "", "", "", null);
+                long contactId = dbHelper.addContact(contact);
+                
+                if (contactId > 0) {
+                    contact.setId((int) contactId);
+                    Log.d(TAG, "Nouveau contact créé automatiquement pour: " + phoneNumber);
+                    
+                    Intent broadcastIntent = new Intent(ACTION_CONTACT_CREATED);
+                    broadcastIntent.putExtra("CONTACT_ID", (int) contactId);
+                    broadcastIntent.putExtra("PHONE_NUMBER", phoneNumber);
+                    context.sendBroadcast(broadcastIntent);
+                } else {
+                    Log.e(TAG, "Erreur lors de la création du contact pour: " + phoneNumber);
+                    return null;
+                }
             }
+            
+            dbHelper.addMessage(contact.getId(), messageText, false);
+            Log.d(TAG, "Message sauvé pour le contact: " + contact.getName());
+            return contact;
+            
         } catch (Exception e) {
             Log.e(TAG, "Erreur lors de la sauvegarde du message: " + e.getMessage());
         }
@@ -145,7 +161,7 @@ public class SmsReceiver extends BroadcastReceiver {
             }
             
             builder.setSmallIcon(R.drawable.ic_launcher)
-                .setContentTitle("Nouveau message de " + contact.getName())
+                .setContentTitle(context.getString(R.string.new_message_from) + " " + contact.getName())
                 .setContentText(messageBody)
                 .setAutoCancel(true)
                 .setContentIntent(pendingIntent)
@@ -196,17 +212,7 @@ public class SmsReceiver extends BroadcastReceiver {
     
     private Contact findContactByPhoneNumber(DatabaseHelper dbHelper, String phoneNumber) {
         try {
-            String normalizedIncoming = normalizePhoneNumber(phoneNumber);
-            List<Contact> contacts = dbHelper.getAllContacts();
-            
-            for (Contact contact : contacts) {
-                String normalizedStored = normalizePhoneNumber(contact.getPhoneNumber());
-                if (normalizedIncoming != null && normalizedIncoming.equals(normalizedStored)) {
-                    return contact;
-                }
-            }
-            
-            return null;
+            return dbHelper.getContactByPhoneNumber(phoneNumber);
         } catch (Exception e) {
             Log.e(TAG, "Erreur lors de la recherche de contact: " + e.getMessage());
             return null;

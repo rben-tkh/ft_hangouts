@@ -13,7 +13,7 @@ import java.util.List;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "contacts_db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     private static final String TABLE_CONTACTS = "contacts";
     private static final String COLUMN_ID = "id";
@@ -22,6 +22,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String COLUMN_EMAIL = "email";
     private static final String COLUMN_ADDRESS = "address";
     private static final String COLUMN_NOTE = "note";
+    private static final String COLUMN_PHOTO_PATH = "photo_path";
 
     private static final String TABLE_MESSAGES = "messages";
     private static final String COLUMN_MESSAGE_ID = "id";
@@ -37,7 +38,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     + COLUMN_PHONE + " TEXT,"
                     + COLUMN_EMAIL + " TEXT,"
                     + COLUMN_ADDRESS + " TEXT,"
-                    + COLUMN_NOTE + " TEXT"
+                    + COLUMN_NOTE + " TEXT,"
+                    + COLUMN_PHOTO_PATH + " TEXT"
                     + ")";
 
     private static final String CREATE_MESSAGES_TABLE =
@@ -62,9 +64,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_MESSAGES);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_CONTACTS);
-        onCreate(db);
+        if (oldVersion < 2) {
+            db.execSQL("ALTER TABLE " + TABLE_CONTACTS + " ADD COLUMN " + COLUMN_PHOTO_PATH + " TEXT");
+        }
     }
 
     public long addContact(Contact contact) {
@@ -76,6 +78,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(COLUMN_EMAIL, contact.getEmail());
         values.put(COLUMN_ADDRESS, contact.getAddress());
         values.put(COLUMN_NOTE, contact.getNote());
+        values.put(COLUMN_PHOTO_PATH, contact.getPhotoPath());
 
         long id = db.insert(TABLE_CONTACTS, null, values);
         db.close();
@@ -97,7 +100,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     cursor.getString(cursor.getColumnIndex(COLUMN_PHONE)),
                     cursor.getString(cursor.getColumnIndex(COLUMN_EMAIL)),
                     cursor.getString(cursor.getColumnIndex(COLUMN_ADDRESS)),
-                    cursor.getString(cursor.getColumnIndex(COLUMN_NOTE))
+                    cursor.getString(cursor.getColumnIndex(COLUMN_NOTE)),
+                    cursor.getString(cursor.getColumnIndex(COLUMN_PHOTO_PATH))
             );
             cursor.close();
         }
@@ -121,7 +125,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         cursor.getString(cursor.getColumnIndex(COLUMN_PHONE)),
                         cursor.getString(cursor.getColumnIndex(COLUMN_EMAIL)),
                         cursor.getString(cursor.getColumnIndex(COLUMN_ADDRESS)),
-                        cursor.getString(cursor.getColumnIndex(COLUMN_NOTE))
+                        cursor.getString(cursor.getColumnIndex(COLUMN_NOTE)),
+                        cursor.getString(cursor.getColumnIndex(COLUMN_PHOTO_PATH))
                 );
                 contactList.add(contact);
             } while (cursor.moveToNext());
@@ -141,6 +146,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(COLUMN_EMAIL, contact.getEmail());
         values.put(COLUMN_ADDRESS, contact.getAddress());
         values.put(COLUMN_NOTE, contact.getNote());
+        values.put(COLUMN_PHOTO_PATH, contact.getPhotoPath());
 
         int result = db.update(TABLE_CONTACTS, values, COLUMN_ID + "=?",
                 new String[]{String.valueOf(contact.getId())});
@@ -201,5 +207,52 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         cursor.close();
         db.close();
         return messageList;
+    }
+
+    public Contact getContactByPhoneNumber(String phoneNumber) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Contact contact = null;
+        
+        String normalizedPhone = normalizePhoneNumber(phoneNumber);
+        
+        String selectQuery = "SELECT * FROM " + TABLE_CONTACTS + " WHERE " + 
+                "REPLACE(REPLACE(REPLACE(REPLACE(" + COLUMN_PHONE + ", ' ', ''), '-', ''), '.', ''), '+33', '0') = ?";
+        
+        Cursor cursor = db.rawQuery(selectQuery, new String[]{normalizedPhone});
+        
+        if (cursor != null && cursor.moveToFirst()) {
+            contact = new Contact(
+                    cursor.getInt(cursor.getColumnIndex(COLUMN_ID)),
+                    cursor.getString(cursor.getColumnIndex(COLUMN_NAME)),
+                    cursor.getString(cursor.getColumnIndex(COLUMN_PHONE)),
+                    cursor.getString(cursor.getColumnIndex(COLUMN_EMAIL)),
+                    cursor.getString(cursor.getColumnIndex(COLUMN_ADDRESS)),
+                    cursor.getString(cursor.getColumnIndex(COLUMN_NOTE)),
+                    cursor.getString(cursor.getColumnIndex(COLUMN_PHOTO_PATH))
+            );
+            cursor.close();
+        }
+        
+        db.close();
+        return contact;
+    }
+    
+    private String normalizePhoneNumber(String phoneNumber) {
+        if (phoneNumber == null) return "";
+        
+        String normalized = phoneNumber.replaceAll("[\\s\\-\\.]", "");
+        
+        if (normalized.startsWith("+33")) {
+            normalized = "0" + normalized.substring(3);
+        }
+        
+        return normalized;
+    }
+    
+    public void deleteMessage(int messageId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLE_MESSAGES, COLUMN_MESSAGE_ID + "=?",
+                new String[]{String.valueOf(messageId)});
+        db.close();
     }
 }

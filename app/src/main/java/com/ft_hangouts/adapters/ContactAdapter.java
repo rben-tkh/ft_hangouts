@@ -1,13 +1,17 @@
 package com.ft_hangouts.adapters;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import com.ft_hangouts.models.Contact;
 import com.ft_hangouts.R;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
+import java.io.File;
 import java.util.List;
 
 public class ContactAdapter extends ArrayAdapter<Contact> {
@@ -31,6 +35,7 @@ public class ContactAdapter extends ArrayAdapter<Contact> {
             holder = new ViewHolder();
             holder.nameTextView = convertView.findViewById(R.id.nameTextView);
             holder.phoneTextView = convertView.findViewById(R.id.phoneTextView);
+            holder.profileImageView = convertView.findViewById(R.id.profileImageView);
 
             convertView.setTag(holder);
         } else {
@@ -41,6 +46,18 @@ public class ContactAdapter extends ArrayAdapter<Contact> {
 
         holder.nameTextView.setText(contact.getName());
         holder.phoneTextView.setText(contact.getPhoneNumber());
+        
+        if (contact.getPhotoPath() != null && !contact.getPhotoPath().isEmpty()) {
+            File imgFile = new File(contact.getPhotoPath());
+            if (imgFile.exists()) {
+                Bitmap bitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+                holder.profileImageView.setImageBitmap(bitmap);
+            } else {
+                holder.profileImageView.setImageResource(android.R.drawable.ic_menu_camera);
+            }
+        } else {
+            holder.profileImageView.setImageResource(android.R.drawable.ic_menu_camera);
+        }
 
         return convertView;
     }
@@ -48,5 +65,6 @@ public class ContactAdapter extends ArrayAdapter<Contact> {
     static class ViewHolder {
         TextView nameTextView;
         TextView phoneTextView;
+        ImageView profileImageView;
     }
 }
