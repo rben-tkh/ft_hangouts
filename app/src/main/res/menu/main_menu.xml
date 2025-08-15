@@ -10,4 +10,9 @@
         android:orderInCategory="101"
         android:title="@string/change_language"
         android:showAsAction="never" />
+    <item
+        android:id="@+id/action_toggle_dark_mode"
+        android:orderInCategory="102"
+        android:title="@string/toggle_dark_mode"
+        android:showAsAction="never" />
 </menu>

@@ -9,4 +9,6 @@
     <color name="colorPurple">#9C27B0</color>
     <color name="messageSent">#E3F2FD</color>
     <color name="messageReceived">#F5F5F5</color>
+    <color name="messageSentDark">#1E3A5F</color>
+    <color name="messageReceivedDark">#424242</color>
 </resources>

@@ -163,6 +163,9 @@ public class MainActivity extends BaseActivity {
             Intent intent = new Intent(this, LanguageActivity.class);
             startActivity(intent);
             return true;
+        } else if (id == R.id.action_toggle_dark_mode) {
+            toggleDarkMode();
+            return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -171,6 +174,25 @@ public class MainActivity extends BaseActivity {
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
+    }
+    
+    private void toggleDarkMode() {
+        boolean currentMode = isDarkModeEnabled();
+        setDarkModeEnabled(!currentMode);
+        
+        // Show toast to indicate mode change
+        String message = !currentMode ? 
+            getString(R.string.dark_mode_enabled) : 
+            getString(R.string.dark_mode_disabled);
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+        
+        // Apply theme immediately
+        applyTheme();
+        
+        // Refresh the adapter to apply theme to list items
+        if (contactAdapter != null) {
+            contactAdapter.notifyDataSetChanged();
+        }
     }
     
     private void requestDefaultSmsApp() {

@@ -1,8 +1,10 @@
 package com.ft_hangouts.adapters;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,6 +48,20 @@ public class ContactAdapter extends ArrayAdapter<Contact> {
 
         holder.nameTextView.setText(contact.getName());
         holder.phoneTextView.setText(contact.getPhoneNumber());
+        
+        // Apply dark mode theme to the item
+        SharedPreferences prefs = context.getSharedPreferences("AppSettings", Context.MODE_PRIVATE);
+        boolean isDarkMode = prefs.getBoolean("dark_mode", false);
+        
+        if (isDarkMode) {
+            convertView.setBackgroundColor(Color.parseColor("#2B2B2B"));
+            holder.nameTextView.setTextColor(Color.WHITE);
+            holder.phoneTextView.setTextColor(Color.LTGRAY);
+        } else {
+            convertView.setBackgroundColor(Color.WHITE);
+            holder.nameTextView.setTextColor(Color.BLACK);
+            holder.phoneTextView.setTextColor(Color.GRAY);
+        }
         
         if (contact.getPhotoPath() != null && !contact.getPhotoPath().isEmpty()) {
             File imgFile = new File(contact.getPhotoPath());

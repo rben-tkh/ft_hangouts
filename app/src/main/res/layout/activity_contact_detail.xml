@@ -16,6 +16,7 @@
         android:layout_height="match_parent">
 
         <LinearLayout
+            android:id="@+id/contact_detail_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -40,6 +41,7 @@
             </LinearLayout>
 
             <TextView
+                android:id="@+id/nameLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/name"
@@ -54,6 +56,7 @@
                 android:textSize="18sp" />
 
             <TextView
+                android:id="@+id/phoneLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/phone"
@@ -68,6 +71,7 @@
                 android:textSize="18sp" />
 
             <TextView
+                android:id="@+id/emailLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/email"
@@ -82,6 +86,7 @@
                 android:textSize="18sp" />
 
             <TextView
+                android:id="@+id/addressLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/address"
@@ -96,6 +101,7 @@
                 android:textSize="18sp" />
 
             <TextView
+                android:id="@+id/noteLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/note"

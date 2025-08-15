@@ -36,6 +36,10 @@
     <string name="language_english">English</string>
     <string name="current_language">Current language</string>
     
+    <string name="toggle_dark_mode">Dark/Light Mode</string>
+    <string name="dark_mode_enabled">Dark mode enabled</string>
+    <string name="dark_mode_disabled">Light mode enabled</string>
+    
     <string name="name_too_long">Name cannot exceed 30 characters</string>
     <string name="phone_invalid_format">Phone must contain only digits</string>
     <string name="phone_too_long">Phone cannot exceed 20 digits</string>

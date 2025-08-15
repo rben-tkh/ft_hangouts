@@ -36,6 +36,10 @@
     <string name="language_english">Anglais</string>
     <string name="current_language">Langue actuelle</string>
     
+    <string name="toggle_dark_mode">Mode nuit/jour</string>
+    <string name="dark_mode_enabled">Mode nuit activé</string>
+    <string name="dark_mode_disabled">Mode jour activé</string>
+    
     <string name="name_too_long">Le nom ne peut pas dépasser 30 caractères</string>
     <string name="phone_invalid_format">Le téléphone doit contenir uniquement des chiffres</string>
     <string name="phone_too_long">Le téléphone ne peut pas dépasser 20 chiffres</string>
