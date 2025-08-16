@@ -15,4 +15,9 @@
         android:orderInCategory="102"
         android:title="@string/toggle_dark_mode"
         android:showAsAction="never" />
+    <item
+        android:id="@+id/action_blocked_contacts"
+        android:orderInCategory="103"
+        android:title="@string/blocked_contacts"
+        android:showAsAction="never" />
 </menu>

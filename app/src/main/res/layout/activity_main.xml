@@ -18,10 +18,24 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <EditText
+            android:id="@+id/searchEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_margin="8dp"
+            android:padding="12dp"
+            android:hint="@string/search_contacts"
+            android:inputType="text"
+            android:imeOptions="actionSearch"
+            android:drawableStart="@android:drawable/ic_menu_search"
+            android:drawablePadding="8dp" />
+
         <ListView
             android:id="@+id/contactListView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_below="@+id/searchEditText"
             android:layout_above="@+id/addButton"
             android:divider="@android:color/darker_gray"
             android:dividerHeight="0.5dp" />

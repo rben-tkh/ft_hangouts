@@ -1,6 +1,8 @@
 package com.ft_hangouts.activities;
 
 import android.Manifest;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -126,6 +128,16 @@ public class ContactDetailActivity extends BaseActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.contact_detail_menu, menu);
+        
+        MenuItem blockItem = menu.findItem(R.id.action_block);
+        MenuItem unblockItem = menu.findItem(R.id.action_unblock);
+        
+        if (contact != null) {
+            boolean isBlocked = dbHelper.isContactBlocked(contactId);
+            blockItem.setVisible(!isBlocked);
+            unblockItem.setVisible(isBlocked);
+        }
+        
         return true;
     }
 
@@ -142,13 +154,67 @@ public class ContactDetailActivity extends BaseActivity {
             startActivity(intent);
             return true;
         } else if (id == R.id.action_delete) {
-            dbHelper.deleteContact(contactId);
-            Toast.makeText(this, R.string.contact_deleted, Toast.LENGTH_SHORT).show();
-            finish();
+            showDeleteConfirmationDialog();
+            return true;
+        } else if (id == R.id.action_block) {
+            showBlockConfirmationDialog();
+            return true;
+        } else if (id == R.id.action_unblock) {
+            showUnblockConfirmationDialog();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+    
+    private void showBlockConfirmationDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.block_contact)
+                .setMessage(getString(R.string.block_contact_confirmation, contact.getName()))
+                .setPositiveButton(R.string.confirm, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (dbHelper.blockContact(contactId)) {
+                            Toast.makeText(ContactDetailActivity.this, R.string.contact_blocked, Toast.LENGTH_SHORT).show();
+                            invalidateOptionsMenu();
+                        }
+                    }
+                })
+                .setNegativeButton(R.string.cancel, null)
+                .show();
+    }
+    
+    private void showUnblockConfirmationDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.unblock_contact)
+                .setMessage(getString(R.string.unblock_contact_confirmation, contact.getName()))
+                .setPositiveButton(R.string.confirm, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (dbHelper.unblockContact(contactId)) {
+                            Toast.makeText(ContactDetailActivity.this, R.string.contact_unblocked, Toast.LENGTH_SHORT).show();
+                            invalidateOptionsMenu();
+                        }
+                    }
+                })
+                .setNegativeButton(R.string.cancel, null)
+                .show();
+    }
+    
+    private void showDeleteConfirmationDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.delete)
+                .setMessage(getString(R.string.delete_contact_confirmation, contact.getName()))
+                .setPositiveButton(R.string.confirm, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dbHelper.deleteContact(contactId);
+                        Toast.makeText(ContactDetailActivity.this, R.string.contact_deleted, Toast.LENGTH_SHORT).show();
+                        finish();
+                    }
+                })
+                .setNegativeButton(R.string.cancel, null)
+                .show();
     }
 
     private void displayImage(String imagePath) {

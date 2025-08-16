@@ -84,6 +84,11 @@
             android:configChanges="orientation|screenSize"
             android:parentActivityName=".activities.MainActivity" />
 
+        <activity
+            android:name=".activities.BlockedContactsActivity"
+            android:configChanges="orientation|screenSize"
+            android:parentActivityName=".activities.MainActivity" />
+
         <receiver
             android:name=".receivers.SmsReceiver"
             android:enabled="true"

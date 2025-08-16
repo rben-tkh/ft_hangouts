@@ -46,19 +46,23 @@ public class ContactAdapter extends ArrayAdapter<Contact> {
 
         Contact contact = contacts.get(position);
 
-        holder.nameTextView.setText(contact.getName());
+        String displayName = contact.getName();
+        if (contact.isDeleted()) {
+            displayName = context.getString(R.string.deleted_contact) + " (" + contact.getPhoneNumber() + ")";
+        }
+        
+        holder.nameTextView.setText(displayName);
         holder.phoneTextView.setText(contact.getPhoneNumber());
         
-        // Apply dark mode theme to the item
         SharedPreferences prefs = context.getSharedPreferences("AppSettings", Context.MODE_PRIVATE);
         boolean isDarkMode = prefs.getBoolean("dark_mode", false);
         
         if (isDarkMode) {
-            convertView.setBackgroundColor(Color.parseColor("#2B2B2B"));
+            convertView.setBackgroundColor(Color.TRANSPARENT);
             holder.nameTextView.setTextColor(Color.WHITE);
             holder.phoneTextView.setTextColor(Color.LTGRAY);
         } else {
-            convertView.setBackgroundColor(Color.WHITE);
+            convertView.setBackgroundColor(Color.TRANSPARENT);
             holder.nameTextView.setTextColor(Color.BLACK);
             holder.phoneTextView.setTextColor(Color.GRAY);
         }

@@ -12,4 +12,16 @@
         android:orderInCategory="101"
         android:title="@string/delete"
         android:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_block"
+        android:icon="@android:drawable/ic_menu_close_clear_cancel"
+        android:orderInCategory="102"
+        android:title="@string/block_contact"
+        android:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_unblock"
+        android:icon="@android:drawable/ic_menu_revert"
+        android:orderInCategory="103"
+        android:title="@string/unblock_contact"
+        android:showAsAction="ifRoom" />
 </menu>

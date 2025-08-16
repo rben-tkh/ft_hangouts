@@ -13,7 +13,7 @@ import java.util.List;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "contacts_db";
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 4;
 
     private static final String TABLE_CONTACTS = "contacts";
     private static final String COLUMN_ID = "id";
@@ -23,6 +23,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String COLUMN_ADDRESS = "address";
     private static final String COLUMN_NOTE = "note";
     private static final String COLUMN_PHOTO_PATH = "photo_path";
+    private static final String COLUMN_IS_BLOCKED = "is_blocked";
+    private static final String COLUMN_IS_DELETED = "is_deleted";
 
     private static final String TABLE_MESSAGES = "messages";
     private static final String COLUMN_MESSAGE_ID = "id";
@@ -39,7 +41,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     + COLUMN_EMAIL + " TEXT,"
                     + COLUMN_ADDRESS + " TEXT,"
                     + COLUMN_NOTE + " TEXT,"
-                    + COLUMN_PHOTO_PATH + " TEXT"
+                    + COLUMN_PHOTO_PATH + " TEXT,"
+                    + COLUMN_IS_BLOCKED + " INTEGER DEFAULT 0,"
+                    + COLUMN_IS_DELETED + " INTEGER DEFAULT 0"
                     + ")";
 
     private static final String CREATE_MESSAGES_TABLE =
@@ -66,6 +70,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         if (oldVersion < 2) {
             db.execSQL("ALTER TABLE " + TABLE_CONTACTS + " ADD COLUMN " + COLUMN_PHOTO_PATH + " TEXT");
+        }
+        if (oldVersion < 3) {
+            db.execSQL("ALTER TABLE " + TABLE_CONTACTS + " ADD COLUMN " + COLUMN_IS_BLOCKED + " INTEGER DEFAULT 0");
+        }
+        if (oldVersion < 4) {
+            db.execSQL("ALTER TABLE " + TABLE_CONTACTS + " ADD COLUMN " + COLUMN_IS_DELETED + " INTEGER DEFAULT 0");
         }
     }
 
@@ -103,6 +113,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     cursor.getString(cursor.getColumnIndex(COLUMN_NOTE)),
                     cursor.getString(cursor.getColumnIndex(COLUMN_PHOTO_PATH))
             );
+            contact.setBlocked(cursor.getInt(cursor.getColumnIndex(COLUMN_IS_BLOCKED)) == 1);
             cursor.close();
         }
 
@@ -112,7 +123,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public List<Contact> getAllContacts() {
         List<Contact> contactList = new ArrayList<>();
-        String selectQuery = "SELECT * FROM " + TABLE_CONTACTS + " ORDER BY " + COLUMN_NAME;
+        String selectQuery;
+        
+        try {
+            selectQuery = "SELECT * FROM " + TABLE_CONTACTS + " WHERE " + COLUMN_IS_DELETED + " = 0 ORDER BY " + COLUMN_NAME;
+        } catch (Exception e) {
+            selectQuery = "SELECT * FROM " + TABLE_CONTACTS + " ORDER BY " + COLUMN_NAME;
+        }
 
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
@@ -128,6 +145,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         cursor.getString(cursor.getColumnIndex(COLUMN_NOTE)),
                         cursor.getString(cursor.getColumnIndex(COLUMN_PHOTO_PATH))
                 );
+                try {
+                    contact.setBlocked(cursor.getInt(cursor.getColumnIndex(COLUMN_IS_BLOCKED)) == 1);
+                } catch (Exception e) {
+                    contact.setBlocked(false);
+                }
                 contactList.add(contact);
             } while (cursor.moveToNext());
         }
@@ -158,10 +180,41 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void deleteContact(int contactId) {
         SQLiteDatabase db = this.getWritableDatabase();
 
+        boolean isBlocked = false;
+        try {
+            Cursor cursor = db.query(TABLE_CONTACTS, new String[]{COLUMN_IS_BLOCKED},
+                    COLUMN_ID + "=?", new String[]{String.valueOf(contactId)},
+                    null, null, null);
+            
+            if (cursor != null && cursor.moveToFirst()) {
+                isBlocked = cursor.getInt(cursor.getColumnIndex(COLUMN_IS_BLOCKED)) == 1;
+                cursor.close();
+            }
+        } catch (Exception e) {
+            isBlocked = false;
+        }
+        
+        if (isBlocked) {
+            try {
+                ContentValues values = new ContentValues();
+                values.put(COLUMN_IS_DELETED, 1);
+                values.put(COLUMN_EMAIL, "");
+                values.put(COLUMN_ADDRESS, "");
+                values.put(COLUMN_NOTE, "");
+                values.put(COLUMN_PHOTO_PATH, "");
+                
+                db.update(TABLE_CONTACTS, values, COLUMN_ID + "=?",
+                        new String[]{String.valueOf(contactId)});
+            } catch (Exception e) {
+                db.delete(TABLE_CONTACTS, COLUMN_ID + "=?",
+                        new String[]{String.valueOf(contactId)});
+            }
+        } else {
+            db.delete(TABLE_CONTACTS, COLUMN_ID + "=?",
+                    new String[]{String.valueOf(contactId)});
+        }
+        
         db.delete(TABLE_MESSAGES, COLUMN_CONTACT_ID + "=?",
-                new String[]{String.valueOf(contactId)});
-
-        db.delete(TABLE_CONTACTS, COLUMN_ID + "=?",
                 new String[]{String.valueOf(contactId)});
 
         db.close();
@@ -216,7 +269,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String normalizedPhone = normalizePhoneNumber(phoneNumber);
         
         String selectQuery = "SELECT * FROM " + TABLE_CONTACTS + " WHERE " + 
-                "REPLACE(REPLACE(REPLACE(REPLACE(" + COLUMN_PHONE + ", ' ', ''), '-', ''), '.', ''), '+33', '0') = ?";
+                "REPLACE(REPLACE(REPLACE(REPLACE(" + COLUMN_PHONE + ", ' ', ''), '-', ''), '.', ''), '+33', '0') = ? AND " +
+                COLUMN_IS_DELETED + " = 0";
         
         Cursor cursor = db.rawQuery(selectQuery, new String[]{normalizedPhone});
         
@@ -230,6 +284,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     cursor.getString(cursor.getColumnIndex(COLUMN_NOTE)),
                     cursor.getString(cursor.getColumnIndex(COLUMN_PHOTO_PATH))
             );
+            contact.setBlocked(cursor.getInt(cursor.getColumnIndex(COLUMN_IS_BLOCKED)) == 1);
             cursor.close();
         }
         
@@ -254,5 +309,96 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.delete(TABLE_MESSAGES, COLUMN_MESSAGE_ID + "=?",
                 new String[]{String.valueOf(messageId)});
         db.close();
+    }
+    
+    public boolean blockContact(int contactId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_IS_BLOCKED, 1);
+        
+        int result = db.update(TABLE_CONTACTS, values, COLUMN_ID + "=?",
+                new String[]{String.valueOf(contactId)});
+        db.close();
+        return result > 0;
+    }
+    
+    public boolean unblockContact(int contactId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_IS_BLOCKED, 0);
+        
+        int result = db.update(TABLE_CONTACTS, values, COLUMN_ID + "=?",
+                new String[]{String.valueOf(contactId)});
+        db.close();
+        return result > 0;
+    }
+    
+    public boolean isContactBlocked(int contactId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_CONTACTS, new String[]{COLUMN_IS_BLOCKED},
+                COLUMN_ID + "=?", new String[]{String.valueOf(contactId)},
+                null, null, null);
+        
+        boolean isBlocked = false;
+        if (cursor != null && cursor.moveToFirst()) {
+            isBlocked = cursor.getInt(cursor.getColumnIndex(COLUMN_IS_BLOCKED)) == 1;
+            cursor.close();
+        }
+        db.close();
+        return isBlocked;
+    }
+    
+    public List<Contact> getBlockedContacts() {
+        List<Contact> contactList = new ArrayList<>();
+        String selectQuery = "SELECT * FROM " + TABLE_CONTACTS + " WHERE " + COLUMN_IS_BLOCKED + " = 1 ORDER BY " + COLUMN_NAME;
+        
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+        
+        if (cursor.moveToFirst()) {
+            do {
+                Contact contact = new Contact(
+                        cursor.getInt(cursor.getColumnIndex(COLUMN_ID)),
+                        cursor.getString(cursor.getColumnIndex(COLUMN_NAME)),
+                        cursor.getString(cursor.getColumnIndex(COLUMN_PHONE)),
+                        cursor.getString(cursor.getColumnIndex(COLUMN_EMAIL)),
+                        cursor.getString(cursor.getColumnIndex(COLUMN_ADDRESS)),
+                        cursor.getString(cursor.getColumnIndex(COLUMN_NOTE)),
+                        cursor.getString(cursor.getColumnIndex(COLUMN_PHOTO_PATH))
+                );
+                contact.setBlocked(true);
+                
+                try {
+                    boolean isDeleted = cursor.getInt(cursor.getColumnIndex(COLUMN_IS_DELETED)) == 1;
+                    contact.setDeleted(isDeleted);
+                } catch (Exception e) {
+                    contact.setDeleted(false);
+                }
+                
+                contactList.add(contact);
+            } while (cursor.moveToNext());
+        }
+        
+        cursor.close();
+        db.close();
+        return contactList;
+    }
+    
+    public boolean isPhoneNumberBlocked(String phoneNumber) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String normalized = normalizePhoneNumber(phoneNumber);
+        
+        String selectQuery = "SELECT " + COLUMN_IS_BLOCKED + " FROM " + TABLE_CONTACTS + " WHERE " + 
+                "REPLACE(REPLACE(REPLACE(REPLACE(" + COLUMN_PHONE + ", ' ', ''), '-', ''), '.', ''), '+33', '0') = ?";
+        
+        Cursor cursor = db.rawQuery(selectQuery, new String[]{normalized});
+        
+        boolean isBlocked = false;
+        if (cursor != null && cursor.moveToFirst()) {
+            isBlocked = cursor.getInt(cursor.getColumnIndex(COLUMN_IS_BLOCKED)) == 1;
+            cursor.close();
+        }
+        db.close();
+        return isBlocked;
     }
 }

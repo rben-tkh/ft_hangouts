@@ -8,8 +8,12 @@ public class Contact {
     private String address;
     private String note;
     private String photoPath;
+    private boolean isBlocked;
+    private boolean isDeleted;
 
     public Contact() {
+        this.isBlocked = false;
+        this.isDeleted = false;
     }
 
     public Contact(int id, String name, String phoneNumber, String email, String address, String note, String photoPath) {
@@ -20,6 +24,8 @@ public class Contact {
         this.address = address;
         this.note = note;
         this.photoPath = photoPath;
+        this.isBlocked = false;
+        this.isDeleted = false;
     }
 
     public Contact(String name, String phoneNumber, String email, String address, String note, String photoPath) {
@@ -29,6 +35,8 @@ public class Contact {
         this.address = address;
         this.note = note;
         this.photoPath = photoPath;
+        this.isBlocked = false;
+        this.isDeleted = false;
     }
 
     public int getId() {
@@ -85,5 +93,21 @@ public class Contact {
 
     public void setPhotoPath(String photoPath) {
         this.photoPath = photoPath;
+    }
+
+    public boolean isBlocked() {
+        return isBlocked;
+    }
+
+    public void setBlocked(boolean blocked) {
+        isBlocked = blocked;
+    }
+
+    public boolean isDeleted() {
+        return isDeleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        isDeleted = deleted;
     }
 }

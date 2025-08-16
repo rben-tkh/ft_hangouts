@@ -75,4 +75,16 @@
     <string name="delete_message_confirmation">Êtes-vous sûr de vouloir supprimer ce message ?</string>
     <string name="message_deleted">Message supprimé</string>
     <string name="cancel">Annuler</string>
+    <string name="search_contacts">Rechercher des contacts...</string>
+    <string name="block_contact">Bloquer</string>
+    <string name="unblock_contact">Débloquer</string>
+    <string name="contact_blocked">Contact bloqué</string>
+    <string name="contact_unblocked">Contact débloqué</string>
+    <string name="blocked_contacts">Contacts bloqués</string>
+    <string name="no_blocked_contacts">Aucun contact bloqué</string>
+    <string name="block_contact_confirmation">Êtes-vous sûr de vouloir bloquer %1$s ?</string>
+    <string name="unblock_contact_confirmation">Êtes-vous sûr de vouloir débloquer %1$s ?</string>
+    <string name="delete_contact_confirmation">Êtes-vous sûr de vouloir supprimer %1$s ?</string>
+    <string name="confirm">Confirmer</string>
+    <string name="deleted_contact">Contact supprimé</string>
 </resources>

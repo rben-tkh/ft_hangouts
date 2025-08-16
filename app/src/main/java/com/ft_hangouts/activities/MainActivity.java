@@ -25,6 +25,9 @@ import com.ft_hangouts.database.DatabaseHelper;
 import com.ft_hangouts.models.Contact;
 import com.ft_hangouts.receivers.SmsReceiver;
 import android.widget.Button;
+import android.widget.EditText;
+import android.text.Editable;
+import android.text.TextWatcher;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -37,8 +40,10 @@ public class MainActivity extends BaseActivity {
 
     private ContactAdapter contactAdapter;
     private List<Contact> contactList;
+    private List<Contact> allContacts;
     private DatabaseHelper dbHelper;
     private BroadcastReceiver contactCreatedReceiver;
+    private EditText searchEditText;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,8 +57,12 @@ public class MainActivity extends BaseActivity {
 
         ListView contactListView = findViewById(R.id.contactListView);
         contactList = new ArrayList<>();
+        allContacts = new ArrayList<>();
         contactAdapter = new ContactAdapter(this, contactList);
         contactListView.setAdapter(contactAdapter);
+
+        searchEditText = findViewById(R.id.searchEditText);
+        setupSearchBar();
 
         requestPermissions();
         
@@ -84,6 +93,47 @@ public class MainActivity extends BaseActivity {
         setupContactCreatedReceiver();
     }
     
+    private void setupSearchBar() {
+        searchEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                filterContacts(s.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+    }
+
+    private void filterContacts(String searchText) {
+        contactList.clear();
+        
+        if (searchText.isEmpty()) {
+            contactList.addAll(allContacts);
+        } else {
+            String searchLower = searchText.toLowerCase();
+            for (Contact contact : allContacts) {
+                if (contact.getName().toLowerCase().contains(searchLower)) {
+                    contactList.add(contact);
+                }
+            }
+        }
+        
+        contactAdapter.notifyDataSetChanged();
+        
+        View emptyTextView = findViewById(R.id.emptyTextView);
+        if (contactList.isEmpty()) {
+            emptyTextView.setVisibility(View.VISIBLE);
+        } else {
+            emptyTextView.setVisibility(View.GONE);
+        }
+    }
+    
     private void setupContactCreatedReceiver() {
         contactCreatedReceiver = new BroadcastReceiver() {
             @Override
@@ -101,9 +151,11 @@ public class MainActivity extends BaseActivity {
     }
 
     private void loadContacts() {
-        contactList.clear();
-        contactList.addAll(dbHelper.getAllContacts());
-        contactAdapter.notifyDataSetChanged();
+        allContacts.clear();
+        allContacts.addAll(dbHelper.getAllContacts());
+        
+        String currentSearch = searchEditText != null ? searchEditText.getText().toString() : "";
+        filterContacts(currentSearch);
     }
 
     @Override
@@ -166,6 +218,10 @@ public class MainActivity extends BaseActivity {
         } else if (id == R.id.action_toggle_dark_mode) {
             toggleDarkMode();
             return true;
+        } else if (id == R.id.action_blocked_contacts) {
+            Intent intent = new Intent(this, BlockedContactsActivity.class);
+            startActivity(intent);
+            return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -180,16 +236,13 @@ public class MainActivity extends BaseActivity {
         boolean currentMode = isDarkModeEnabled();
         setDarkModeEnabled(!currentMode);
         
-        // Show toast to indicate mode change
         String message = !currentMode ? 
             getString(R.string.dark_mode_enabled) : 
             getString(R.string.dark_mode_disabled);
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
         
-        // Apply theme immediately
         applyTheme();
         
-        // Refresh the adapter to apply theme to list items
         if (contactAdapter != null) {
             contactAdapter.notifyDataSetChanged();
         }

@@ -73,6 +73,12 @@ public class MessageActivity extends BaseActivity {
         contact = dbHelper.getContact(contactId);
 
         if (contact != null) {
+            if (dbHelper.isContactBlocked(contactId)) {
+                Toast.makeText(this, getString(R.string.contact_blocked), Toast.LENGTH_SHORT).show();
+                finish();
+                return;
+            }
+            
             if (getActionBar() != null) {
                 getActionBar().setTitle(contact.getName());
             }
@@ -205,7 +211,6 @@ public class MessageActivity extends BaseActivity {
             try {
                 unregisterReceiver(smsReceiver);
             } catch (IllegalArgumentException e) {
-                // ignorer l'exception
             }
         }
     }
@@ -220,7 +225,6 @@ public class MessageActivity extends BaseActivity {
             try {
                 unregisterReceiver(smsReceiver);
             } catch (IllegalArgumentException e) {
-                // ignorer l'exception
             }
         }
     }

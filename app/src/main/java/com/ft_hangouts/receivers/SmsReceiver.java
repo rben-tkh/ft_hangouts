@@ -57,6 +57,14 @@ public class SmsReceiver extends BroadcastReceiver {
                         
                         if (sender != null && fullMessage.length() > 0) {
                             String completeMessage = fullMessage.toString();
+                            
+                            DatabaseHelper dbHelper = new DatabaseHelper(context);
+                            if (dbHelper.isPhoneNumberBlocked(sender)) {
+                                Log.d(TAG, "SMS from blocked number ignored: " + sender);
+                                abortBroadcast();
+                                return;
+                            }
+                            
                             Contact savedContact = saveReceivedMessage(context, sender, completeMessage);
                             
                             if (savedContact != null) {

@@ -75,4 +75,16 @@
     <string name="delete_message_confirmation">Are you sure you want to delete this message?</string>
     <string name="message_deleted">Message deleted</string>
     <string name="cancel">Cancel</string>
+    <string name="search_contacts">Search contacts...</string>
+    <string name="block_contact">Block</string>
+    <string name="unblock_contact">Unblock</string>
+    <string name="contact_blocked">Contact blocked</string>
+    <string name="contact_unblocked">Contact unblocked</string>
+    <string name="blocked_contacts">Blocked contacts</string>
+    <string name="no_blocked_contacts">No blocked contacts</string>
+    <string name="block_contact_confirmation">Are you sure you want to block %1$s?</string>
+    <string name="unblock_contact_confirmation">Are you sure you want to unblock %1$s?</string>
+    <string name="delete_contact_confirmation">Are you sure you want to delete %1$s?</string>
+    <string name="confirm">Confirm</string>
+    <string name="deleted_contact">Deleted contact</string>
 </resources>

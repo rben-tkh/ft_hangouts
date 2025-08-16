@@ -36,7 +36,6 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             convertView = LayoutInflater.from(context).inflate(R.layout.item_message_received, parent, false);
         }
         
-        // Get the LinearLayout container for background change
         android.widget.LinearLayout messageContainer = convertView.findViewById(R.id.messageContainer);
 
         TextView messageTextView = convertView.findViewById(R.id.messageTextView);
@@ -48,20 +47,17 @@ public class MessageAdapter extends ArrayAdapter<Message> {
         String timeString = sdf.format(new Date(message.getTimestamp()));
         timeTextView.setText(timeString);
 
-        // Apply dark mode theme
         SharedPreferences prefs = context.getSharedPreferences("AppSettings", Context.MODE_PRIVATE);
         boolean isDarkMode = prefs.getBoolean("dark_mode", false);
         
         if (isDarkMode) {
             if (message.isSent()) {
-                // Sent messages: dark mode background and white text
                 if (messageContainer != null) {
                     messageContainer.setBackgroundResource(R.drawable.message_sent_background_dark);
                 }
                 messageTextView.setTextColor(Color.WHITE);
                 timeTextView.setTextColor(Color.LTGRAY);
             } else {
-                // Received messages: dark mode background and white text
                 if (messageContainer != null) {
                     messageContainer.setBackgroundResource(R.drawable.message_received_background_dark);
                 }
@@ -69,16 +65,13 @@ public class MessageAdapter extends ArrayAdapter<Message> {
                 timeTextView.setTextColor(Color.LTGRAY);
             }
         } else {
-            // Light mode
             if (message.isSent()) {
-                // Sent messages: light background and appropriate text color
                 if (messageContainer != null) {
                     messageContainer.setBackgroundResource(R.drawable.message_sent_background);
                 }
                 messageTextView.setTextColor(Color.BLACK);
                 timeTextView.setTextColor(Color.DKGRAY);
             } else {
-                // Received messages: light background and black text
                 if (messageContainer != null) {
                     messageContainer.setBackgroundResource(R.drawable.message_received_background);
                 }
